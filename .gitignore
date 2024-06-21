@@ -1,0 +1,13 @@
+# Python caches
+__pycache__/
+*.py[cod]
+
+# Jupyter Notebook caches
+.ipynb_checkpoints/
+
+# Subdirectory caches
+**/__pycache__/
+**/.ipynb_checkpoints/
+
+# Ignore environment
+env

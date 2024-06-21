@@ -1,0 +1,31 @@
+{
+  "input_size": 4,
+  "output_size": 2,
+  "layers": [
+    {
+      "type": "linear",
+      "dim_in": 4,
+      "dim_out": 4,
+      "activation": {
+        "name": "leaky_relu"
+      }
+    },
+    {
+      "type": "linear",
+      "dim_in": 4,
+      "dim_out": 3,
+      "activation": {
+        "name": "leaky_relu"
+      }
+    },
+    {
+      "type": "linear",
+      "dim_in": 3,
+      "dim_out": 2,
+      "activation": {
+        "name": "sigmoid",
+        "dim": 1
+      }
+    }
+  ]
+}
