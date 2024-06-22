@@ -8,14 +8,17 @@ from lib.multi_layer_perceptron import MultiLayerPerceptron
 # CL Only assets
 mlp_cl_only_config = "./config/mlp_a_cl_only.json"
 mlp_cl_only_model = "./models/model_a_cl.pth"
+mlp_cl_only_bw_model = "./models/model_a_cl_bw.pth"
 
 # CL + HR assets
 mlp_cl_hr_config = "./config/mlp_a_cl_hr.json"
 mlp_cl_hr_model = "./models/model_a_cl_hr_preterm_term.pth"
+mlp_cl_hr_bw_model = "./models/model_a_cl_hr_preterm_bw.pth"
 
 # CL + Partus assets
 mlp_cl_partus_config = "./config/mlp_a_cl_partus.json"
 mlp_cl_partus_model = "./models/model_a_cl_partus_preterm_term.pth"
+mlp_cl_partus_bw_model = "./models/model_a_cl_partus_preterm_bw.pth"
 
 device = "cpu"
 
@@ -27,6 +30,10 @@ model_cl_only = MultiLayerPerceptron(mlp_cfg).to("cpu")
 model_cl_only.load_state_dict(torch.load(mlp_cl_only_model))
 model_cl_only.eval()
 
+model_cl_only_bw = MultiLayerPerceptron(mlp_cfg).to("cpu")
+model_cl_only_bw.load_state_dict(torch.load(mlp_cl_only_bw_model))
+model_cl_only_bw.eval()
+
 # Load CL + HR model
 with open(mlp_cl_hr_config) as json_file:
     mlp_cfg = json.load(json_file)
@@ -35,12 +42,21 @@ model_cl_hr = MultiLayerPerceptron(mlp_cfg).to("cpu")
 model_cl_hr.load_state_dict(torch.load(mlp_cl_hr_model))
 model_cl_hr.eval()
 
+model_cl_hr_bw = MultiLayerPerceptron(mlp_cfg).to("cpu")
+model_cl_hr_bw.load_state_dict(torch.load(mlp_cl_hr_bw_model))
+model_cl_hr_bw.eval()
+
 # Load CL + Partus model
 with open(mlp_cl_partus_config) as json_file:
     mlp_cfg = json.load(json_file)
+
 model_cl_partus = MultiLayerPerceptron(mlp_cfg).to("cpu")
 model_cl_partus.load_state_dict(torch.load(mlp_cl_partus_model))
 model_cl_partus.eval()
+
+model_cl_partus_bw = MultiLayerPerceptron(mlp_cfg).to("cpu")
+model_cl_partus_bw.load_state_dict(torch.load(mlp_cl_partus_bw_model))
+model_cl_partus_bw.eval()
 
 st.title("Term Prediction")
 
@@ -57,10 +73,13 @@ input_type = st.radio(
 
 if input_type == input_type_cl_only:
     model_classifier = model_cl_only
+    model_bw = model_cl_only_bw
 elif input_type == input_type_cl_hr:
     model_classifier = model_cl_hr
+    model_bw = model_cl_hr_bw
 elif input_type == input_type_cl_partus:
     model_classifier = model_cl_partus
+    model_bw = model_cl_partus_bw
 
 # Horizontal line
 st.markdown("---")
@@ -97,15 +116,29 @@ if st.button("Predict"):
 
     output = model_classifier(input_vector).detach().cpu().numpy()
 
-    print("Output:")
+    print("Output (Classifier):")
     print(output)
 
     prob_preterm = round(output[0] * 100, 2)
     prob_term = round(output[1] * 100, 2)
 
+    prob_preterm_b = 0.0
+    prob_preterm_w = 0.0
+
+    if prob_preterm > prob_term:
+        output = model_bw(input_vector).detach().cpu().numpy()
+
+        print("Output (Beyond vs Within 7 Days):")
+        print(output)
+
+        prob_preterm_b = round(output[0] * 100, 2)
+        prob_preterm_w = round(output[1] * 100, 2)
+
     # Display the probabilities in two columns
     st.markdown("""---""")
     st.header("Results")
-    col1, col2 = st.columns(2)
+    col1, col2, col3, col4 = st.columns(4)
     col1.metric(label="Probability Preterm", value=f"{prob_preterm:.2f}%")
     col2.metric(label="Probability Term", value=f"{prob_term:.2f}%")
+    col4.metric(label="Preterm Within 7 Days", value=f"{prob_preterm_w:.2f}%")
+    col3.metric(label="Preterm Beyond 7 Days", value=f"{prob_preterm_b:.2f}%")
