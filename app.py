@@ -4,6 +4,8 @@ import os
 import sys
 import json
 from lib.multi_layer_perceptron import MultiLayerPerceptron
+import plotly.express as px
+import pandas as pd
 
 # CL Only assets
 mlp_cl_only_config = "./config/mlp_a_cl_only.json"
@@ -140,5 +142,20 @@ if st.button("Predict"):
     col1, col2, col3, col4 = st.columns(4)
     col1.metric(label="Probability Preterm", value=f"{prob_preterm:.2f}%")
     col2.metric(label="Probability Term", value=f"{prob_term:.2f}%")
-    col4.metric(label="Preterm Within 7 Days", value=f"{prob_preterm_w:.2f}%")
     col3.metric(label="Preterm Beyond 7 Days", value=f"{prob_preterm_b:.2f}%")
+    col4.metric(label="Preterm Within 7 Days", value=f"{prob_preterm_w:.2f}%")
+
+    # Graph
+    values = [prob_preterm, prob_term, prob_preterm_w, prob_preterm_b]
+    labels = ["Preterm", "Term", "Preterm Within 7 Days", "Preterm Beyond 7 Days"]
+
+    df = pd.DataFrame({
+        'Classification': labels,
+        'Probability': values
+    })
+
+    # Create a bar chart
+    fig = px.bar(df, x='Classification', y='Probability', title='Term Classification')
+
+    # Display the bar chart in Streamlit
+    st.plotly_chart(fig)
