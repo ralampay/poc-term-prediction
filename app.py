@@ -89,10 +89,10 @@ st.markdown("---")
 x1_input = st.checkbox("Advanced Maternal Age")
 x2_input = st.checkbox("History of Previous STPB")
 x3_input = st.checkbox("History of Miscarriage")
-x4_input = st.number_input("Cervical Length")
+x4_input = st.number_input("Cervical Length (in cm)")
 
 if input_type == input_type_cl_hr:
-    x5_input = st.number_input("Hardness Ratio")
+    x5_input = st.number_input("Hardness Ratio (in %)")
 
 elif input_type == input_type_cl_partus:
     x5_input = st.checkbox("Partus")
@@ -145,17 +145,31 @@ if st.button("Predict"):
     col3.metric(label="Within 7 Days", value=f"{prob_preterm_w:.2f}%")
     col4.metric(label="Beyond 7 Days", value=f"{prob_preterm_b:.2f}%")
 
-    # Graph
-    values = [prob_preterm, prob_term, prob_preterm_w, prob_preterm_b]
-    labels = ["Preterm", "Term", "Within 7 Days", "Beyond 7 Days"]
+    # Graph Prob Term
+    values = [prob_preterm, prob_term]
+    labels = ["Preterm", "Term"]
 
-    df = pd.DataFrame({
+    df_preterm = pd.DataFrame({
         'Classification': labels,
         'Probability': values
     })
 
     # Create a bar chart
-    fig = px.bar(df, x='Classification', y='Probability', title='Term Classification')
+    fig_preterm = px.bar(df_preterm, x='Classification', y='Probability', title='Preterm Classification')
 
     # Display the bar chart in Streamlit
-    st.plotly_chart(fig)
+    st.plotly_chart(fig_preterm)
+
+    values = [prob_preterm_w, prob_preterm_b]
+    labels = ["Within 7 Days", "Beyond 7 Days"]
+
+    df_within = pd.DataFrame({
+        'Classification': labels,
+        'Probability': values
+    })
+
+    # Create a bar chart
+    fig_within = px.bar(df_within, x='Classification', y='Probability', title='Within 7 Days', color_discrete_sequence=['yellow'])
+
+    # Display the bar chart in Streamlit
+    st.plotly_chart(fig_within)
