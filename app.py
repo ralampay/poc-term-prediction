@@ -64,7 +64,7 @@ st.title("Term Prediction")
 
 input_type_cl_only      = "CL Only"
 input_type_cl_hr        = "CL + Hardness Ratio"
-input_type_cl_partus    = "CL + Partus"
+input_type_cl_partus    = "CL + phIGFBP-1"
 
 input_type = input_type_cl_only
 
@@ -92,7 +92,7 @@ x3_input = st.checkbox("History of Miscarriage")
 x4_input = st.number_input("Cervical Length")
 
 if input_type == input_type_cl_hr:
-    x5_input = st.slider("Hardness Ratio", 0.0, 100.0)
+    x5_input = st.number_input("Hardness Ratio")
 
 elif input_type == input_type_cl_partus:
     x5_input = st.checkbox("Partus")
@@ -142,12 +142,12 @@ if st.button("Predict"):
     col1, col2, col3, col4 = st.columns(4)
     col1.metric(label="Probability Preterm", value=f"{prob_preterm:.2f}%")
     col2.metric(label="Probability Term", value=f"{prob_term:.2f}%")
-    col3.metric(label="Preterm Within 7 Days", value=f"{prob_preterm_w:.2f}%")
-    col4.metric(label="Preterm Beyond 7 Days", value=f"{prob_preterm_b:.2f}%")
+    col3.metric(label="Within 7 Days", value=f"{prob_preterm_w:.2f}%")
+    col4.metric(label="Beyond 7 Days", value=f"{prob_preterm_b:.2f}%")
 
     # Graph
     values = [prob_preterm, prob_term, prob_preterm_w, prob_preterm_b]
-    labels = ["Preterm", "Term", "Preterm Within 7 Days", "Preterm Beyond 7 Days"]
+    labels = ["Preterm", "Term", "Within 7 Days", "Beyond 7 Days"]
 
     df = pd.DataFrame({
         'Classification': labels,
